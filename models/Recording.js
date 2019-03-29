@@ -65,6 +65,9 @@ module.exports = function(sequelize, DataTypes) {
     batteryLevel: DataTypes.DOUBLE,
     batteryCharging: DataTypes.STRING,
     airplaneModeOn: DataTypes.BOOLEAN,
+
+    TracksInfo: DataTypes.VIRTUAL,
+    TrackCount: DataTypes.VIRTUAL,
   };
 
   var Recording = sequelize.define(name, attributes);
@@ -130,6 +133,12 @@ module.exports = function(sequelize, DataTypes) {
       },
       order: order,
       include: [
+        { model: models.Track, where:{archivedAt:null}, 
+          include: [
+            { model: models.TrackTag, attributes:['what','automatic']}
+          ],
+          attributes:['id']
+        },
         { model: models.Group },
         { model: models.Tag, where: makeTagsWhere(tags), include: [{association: 'tagger', attributes: ['username']}] },
         { model: models.Device, where: {}, attributes: ["devicename", "id"] },
@@ -137,6 +146,7 @@ module.exports = function(sequelize, DataTypes) {
       limit: limit,
       offset: offset,
       attributes: this.userGetAttributes,
+    //    include: [[Sequelize.fn("COUNT", Sequelize.col("Tracks")), "trackCount"]] 
     };
 
     var queryResponse = await this.findAndCountAll(q);
@@ -390,6 +400,8 @@ module.exports = function(sequelize, DataTypes) {
       this.location.coordinates = reduceLatLonPrecision(
         this.location.coordinates, options.latLongPrec);
     }
+    console.log(this.Tracks.length);
+    this.TracksInfo = {Count: this.Tracks.length}
   };
 
   function makeFilterOptions(user, options = {}) {
