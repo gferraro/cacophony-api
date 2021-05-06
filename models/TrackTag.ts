@@ -19,11 +19,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 import Sequelize from "sequelize";
 import { ModelCommon, ModelStaticCommon } from "./index";
 import { UserId as UserIdAlias } from "./User";
+import { TrackId } from "./Track";
 
 export type TrackTagId = number;
 export interface TrackTag extends Sequelize.Model, ModelCommon<TrackTag> {
   isAdditionalTag: () => boolean;
   id: TrackTagId;
+  TrackId: TrackId;
   what: string;
   automatic: boolean;
   UserId: UserIdAlias;
